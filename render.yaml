@@ -62,7 +62,10 @@ services:
     type: web
     runtime: static
     plan: free
-    region: oregon
+    # No `region` here, deliberately -- Render rejects it on static sites
+    # (hit directly: "static sites cannot have a region"). Static sites are
+    # served from Render's CDN, not a region-pinned compute instance, so
+    # the field doesn't apply -- only the backend's Docker service needs it.
     rootDir: ./ai-document-auditor-frontend
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
