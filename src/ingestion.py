@@ -1,5 +1,6 @@
 import os
 import re
+from functools import lru_cache
 from typing import List
 from langchain_core.documents import Document
 from langchain_core.embeddings import Embeddings
@@ -12,6 +13,26 @@ from docx.oxml.ns import qn
 from sentence_transformers import SentenceTransformer
 
 _PAGE_MARKER = re.compile(r"\[PAGE\s+(\d+)\]")
+
+
+@lru_cache(maxsize=1)
+def _load_sentence_transformer(model_name: str) -> SentenceTransformer:
+    """
+    Loads the model exactly once per process and reuses it for every job
+    after that -- MiniLMEmbeddings used to call SentenceTransformer(...)
+    fresh in its own __init__, which ran again on every single audit
+    (create_hybrid_retriever is called per upload). Even with the old
+    instance correctly garbage collected, PyTorch's CPU allocator doesn't
+    hand freed memory back to the OS -- it holds it as a reuse cache -- so
+    repeated load-and-discard cycles made the process's actual memory
+    footprint creep upward across uploads rather than staying flat. Hit
+    directly in production: the service ran several audits successfully,
+    then got OOM-killed by Render once the accumulated footprint crossed
+    the free-tier memory limit -- a creeping leak, not a one-shot failure.
+    maxsize=1 is deliberate: only one model name is ever actually used.
+    """
+    return SentenceTransformer(model_name)
+
 
 class MiniLMEmbeddings(Embeddings):
     """
@@ -32,7 +53,7 @@ class MiniLMEmbeddings(Embeddings):
     """
 
     def __init__(self, model_name: str = "sentence-transformers/all-MiniLM-L6-v2"):
-        self._model = SentenceTransformer(model_name)
+        self._model = _load_sentence_transformer(model_name)
 
     def embed_documents(self, texts: List[str]) -> List[List[float]]:
         return self._model.encode(texts, convert_to_numpy=True).tolist()
