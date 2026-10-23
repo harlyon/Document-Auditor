@@ -3,6 +3,20 @@
 # a connected GitHub/GitLab remote first; Render deploys from a Git
 # repository, not from local disk).
 #
+# Both services are on Render's FREE plan, deliberately -- no payment
+# method required. The real cost: free web services (the backend) spin
+# down after 15 minutes with no inbound traffic, and their filesystem is
+# wiped on every redeploy/restart/spin-down -- confirmed directly against
+# Render's own docs. That means the persistence layer this project built
+# (src/store.py, jobs surviving a restart) doesn't really hold up on this
+# specific host: state resets far more often than a real "restart," since
+# normal idle time between visits triggers it. That's a free-tier hosting
+# limitation, not a bug -- the actual audit pipeline (upload, audit, view
+# results) works completely normally within one sitting; only "my audit
+# history is still here next week" breaks. Upgrading later (plan: starter
+# on the backend + the disk block this file no longer has) restores real
+# persistence, once/if that's worth paying for.
+#
 # Deploy order matters here, because the two services need each other's
 # public URL and Render has no way to pre-wire that between a Docker web
 # service and a static site (fromService only exposes internal host:port,
@@ -25,7 +39,7 @@ services:
   - name: ai-document-auditor-api
     type: web
     runtime: docker
-    plan: starter
+    plan: free
     region: oregon
     dockerfilePath: ./Dockerfile
     healthCheckPath: /health
@@ -42,19 +56,16 @@ services:
         - Dockerfile
       ignoredPaths:
         - ai-document-auditor-frontend/**
-    disk:
-      name: data
-      mountPath: /app/data
-      sizeGB: 1
+    # No `disk` here -- free web services can't attach one (confirmed
+    # against Render's docs). jobs.db/uploads/ fall back to their plain
+    # in-container defaults (see api.py/src/store.py) instead of the
+    # /app/data mount path a paid plan would use -- ephemeral, per the
+    # comment at the top of this file.
     envVars:
       - key: GEMINI_API_KEY
         sync: false
       - key: API_KEY
         sync: false
-      - key: JOBS_DB_PATH
-        value: /app/data/jobs.db
-      - key: UPLOAD_DIR
-        value: /app/data/uploads
       - key: CORS_ORIGINS
         sync: false # fill in with the frontend service's URL after step 1 above
 
