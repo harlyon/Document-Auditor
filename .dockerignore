@@ -1,0 +1,24 @@
+# Secrets -- never in the build context
+.env
+.env.*
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Runtime state that shouldn't ship in the image -- created fresh at container
+# start, or mounted from a persistent volume (jobs.db)
+uploads/
+chroma/
+jobs.db
+
+# Not needed inside the API image
+data/format_tests/
+docs/
+tests/
+.git/
+.vscode/
+.claude/
+*.log

@@ -1,0 +1,52 @@
+================================================================================
+NEXUS GLOBAL WEALTH MANAGEMENT LLC | INVESTMENT ADVISORY AGREEMENT
+DOCUMENT ID: NGWM-2026-F892
+================================================================================
+
+[PAGE 1]
+This Investment Advisory Agreement (the "Agreement") is entered into as of October 15, 2026, by and between Nexus Global Wealth Management LLC, a registered investment advisor ("the Firm"), and the undersigned institutional client ("the Client").
+
+Section 1. Scope of Services
+The Firm shall provide continuous, discretionary portfolio management and investment advisory services tailored to the Client's liquidity profiles and capital preservation parameters. The Firm is authorized to buy, sell, and trade equities, fixed-income securities, and alternative digital assets on behalf of the Client without prior consultation, subject to the risk boundaries defined in Schedule A.
+
+Section 2. Standard of Care
+The Firm shall execute its fiduciary duties with the utmost care, skill, prudence, and diligence under the circumstances then prevailing that a prudent person acting in a like capacity and familiar with such matters would use.
+
+--------------------------------------------------------------------------------
+
+[PAGE 2]
+Section 14. Governing Law and Jurisdiction
+This Agreement, its interpretation, and all disputes, claims, or litigation arising out of or relating to its execution shall be governed exclusively by, and construed in accordance with, the laws of the State of New York, United States of America, without regard to its principles of conflicts of law. The parties hereby irrevocably submit to the personal and exclusive jurisdiction of the State and Federal courts located within New York County, New York.
+
+Section 15. Standard Fees and Asset Valuation
+Management fees shall be billed quarterly in arrears at an annualized rate of 0.75% of the Net Asset Value (NAV) of the managed portfolio.
+
+--------------------------------------------------------------------------------
+
+[PAGE 3]
+Section 19. Limitation of Liability
+To the maximum extent permitted by applicable law, the total, aggregate liability of the Firm, its affiliates, directors, or employees for any losses, damages, structural deficits, or breach of contract claims arising under this relationship shall be strictly capped at a maximum ceiling of $50,000 USD. Under no circumstances shall either party be liable for consequential, special, or punitive damages.
+
+Section 20. Indemnification
+The Client agrees to indemnify and hold harmless the Firm from any market-driven losses, provided that the Firm has not engaged in proven gross negligence, systemic willful misconduct, or a material breach of its standard of care.
+
+--------------------------------------------------------------------------------
+
+[PAGE 4]
+Section 21. Non-Compete and Non-Solicitation Restrictions
+During the term of this Agreement and for an explicit, restrictive duration of twenty-four (24) months following its termination for any reason, the Client shall not, directly or indirectly, solicit, hire, or engage any portfolio manager, research analyst, or algorithmic engineer employed by the Firm.
+
+Section 22. Force Majeure
+Neither party shall be liable for failing to perform its contractual obligations if such failure results from acts of God, war, cyber warfare attacks, sovereign debt defaults, or extraordinary regulatory intervention beyond reasonable control.
+
+--------------------------------------------------------------------------------
+
+[PAGE 5]
+Section 22.9. Comprehensive Integration and Alternate Jurisdiction
+This section stands as an absolute integration clause. Entirely superseding, replacing, and invalidating any and all previous clauses, statements, oral agreements, or contradictions found within earlier segments of this document or its appendices, the parties explicitly agree that all transactional conflicts, operational disputes, and legal interpretations arising under this relationship shall be governed exclusively by the laws of the United Kingdom.
+
+Any legal proceedings initiated by either party must be filed and arbitrated strictly within the courts of London, England, applying English law.
+
+================================================================================
+END OF DOCUMENT | NEXUS GLOBAL WEALTH MANAGEMENT LLC
+================================================================================

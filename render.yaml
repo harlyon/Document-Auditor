@@ -1,0 +1,81 @@
+# Render Blueprint -- provisions both services from this one file via
+# Render's "New Blueprint Instance" flow (requires this repo to be pushed to
+# a connected GitHub/GitLab remote first; Render deploys from a Git
+# repository, not from local disk).
+#
+# Deploy order matters here, because the two services need each other's
+# public URL and Render has no way to pre-wire that between a Docker web
+# service and a static site (fromService only exposes internal host:port,
+# not the public https:// URL -- not useful for CORS_ORIGINS or
+# VITE_API_BASE_URL). So:
+#   1. Deploy this blueprint. Both services come up once, but CORS will
+#      reject the frontend's requests and the frontend will be pointed at
+#      nothing -- expected on this first pass.
+#   2. Copy the backend's URL (https://ai-document-auditor-api-XXXX.onrender.com)
+#      into the frontend service's VITE_API_BASE_URL env var, which triggers
+#      a rebuild (Vite env vars are baked in at build time, not read at
+#      runtime -- a plain env var change always needs a rebuild here).
+#   3. Copy the frontend's URL into the backend's CORS_ORIGINS env var,
+#      which triggers a restart (read at runtime, no rebuild needed).
+#   4. Set GEMINI_API_KEY and API_KEY on the backend (sync: false below
+#      means Render prompts for these on creation -- fill them in then, or
+#      add them in the dashboard afterward either way).
+
+services:
+  - name: ai-document-auditor-api
+    type: web
+    runtime: docker
+    plan: starter
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    # Without this, every push -- including a frontend-only change -- would
+    # also rebuild and restart this service, since it has no rootDir of its
+    # own to scope it (the frontend's rootDir below already does this for
+    # it automatically; the backend needs it spelled out explicitly because
+    # its code lives at the repo root, alongside the frontend's directory).
+    buildFilter:
+      paths:
+        - api.py
+        - src/**
+        - requirements.txt
+        - Dockerfile
+      ignoredPaths:
+        - ai-document-auditor-frontend/**
+    disk:
+      name: data
+      mountPath: /app/data
+      sizeGB: 1
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: API_KEY
+        sync: false
+      - key: JOBS_DB_PATH
+        value: /app/data/jobs.db
+      - key: UPLOAD_DIR
+        value: /app/data/uploads
+      - key: CORS_ORIGINS
+        sync: false # fill in with the frontend service's URL after step 1 above
+
+  - name: ai-document-auditor-frontend
+    type: web
+    runtime: static
+    plan: free
+    region: oregon
+    rootDir: ./ai-document-auditor-frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    routes:
+      # react-router's BrowserRouter needs every path rewritten to
+      # index.html -- without this, a direct load or refresh of e.g.
+      # /audits/some-job-id 404s instead of letting the client-side router
+      # handle it.
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_KEY
+        sync: false
+      - key: VITE_API_BASE_URL
+        sync: false # fill in with the backend service's URL after step 1 above
