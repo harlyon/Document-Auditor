@@ -144,14 +144,25 @@ async def _run_job(job_id: str, file_path: Path):
     store.save_job(job)
 
     try:
-        raw_docs = load_document(str(file_path))
+        # Each of these is synchronous, CPU-bound work -- parsing the file,
+        # chunking it, and (the expensive part) loading the local MiniLM
+        # model and embedding every chunk into Chroma. Running any of them
+        # as a plain call would block this single-worker event loop for the
+        # entire duration, starving every other in-flight request, including
+        # this same job's own status polling -- confirmed directly: a real
+        # upload froze /health for ~12s while this ran unwrapped, timing out
+        # the frontend's poll and surfacing as a CORS/connection failure
+        # that had nothing to do with CORS. src/engine.py already wraps its
+        # own blocking retriever/guardrail calls in asyncio.to_thread for
+        # exactly this reason -- this was just the one spot that got missed.
+        raw_docs = await asyncio.to_thread(load_document, str(file_path))
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=500,
             chunk_overlap=100,
             separators=["\n\n", "\n", ". ", " ", ""]
         )
-        documents = text_splitter.split_documents(raw_docs)
-        retriever = create_hybrid_retriever(documents)
+        documents = await asyncio.to_thread(text_splitter.split_documents, raw_docs)
+        retriever = await asyncio.to_thread(create_hybrid_retriever, documents)
 
         checklist = [item["checklist_item"] for item in job["items"]]
 
